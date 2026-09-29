@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Download, Copy, Check, FileCode, CheckCircle, HelpCircle } from 'lucide-react';
+import { X, Download, Copy, Check, FileCode, CheckCircle, Github, HelpCircle, ExternalLink } from 'lucide-react';
 import { generateStandaloneHtml } from '../utils/standaloneHtml';
 
 interface StandaloneExportModalProps {
@@ -19,7 +19,7 @@ export const StandaloneExportModal: React.FC<StandaloneExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'qr_scanner_standalone.html';
+    a.download = 'index.html';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -38,17 +38,17 @@ export const StandaloneExportModal: React.FC<StandaloneExportModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/90">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400">
               <FileCode className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-base">Fristående Ren HTML-fil</h3>
+              <h3 className="font-semibold text-white text-base">Fristående HTML för GitHub & Mobil</h3>
               <p className="text-xs text-slate-400">
-                100% självgående fil — öppna direkt i mobil eller dator utan installation
+                100% självgående fil — bord-till-kök kedja med kamera som fungerar direkt
               </p>
             </div>
           </div>
@@ -60,57 +60,51 @@ export const StandaloneExportModal: React.FC<StandaloneExportModalProps> = ({
           </button>
         </div>
 
-        {/* Info Explaining Why The User's Original HTML Failed */}
+        {/* GitHub Instructions Guide */}
         <div className="p-5 overflow-y-auto space-y-4">
-          <div className="bg-slate-800/70 border border-slate-700/80 rounded-xl p-4 text-xs space-y-2.5 text-slate-300">
-            <div className="flex items-center gap-2 text-sky-400 font-semibold text-sm">
-              <HelpCircle className="w-4 h-4" />
-              Varför din ursprungliga HTML-kod inte fungerade som förväntat:
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs space-y-3">
+            <div className="flex items-center gap-2 text-sky-400 font-bold text-sm">
+              <Github className="w-4 h-4" />
+              Så får du den att fungera direkt på GitHub Pages (steg för steg):
             </div>
-            <ul className="list-disc list-inside space-y-1.5 pl-1 text-slate-300">
+            <ol className="list-decimal list-inside space-y-2 text-slate-300 leading-relaxed">
               <li>
-                <strong className="text-white">Krasch på dator:</strong> Att begära{' '}
-                <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300">
-                  facingMode: &quot;environment&quot;
-                </code>{' '}
-                kraschar webbkameror på bärbara datorer med{' '}
-                <em>OverconstrainedError</em>, eftersom datorer saknar bakkamera.
+                <strong className="text-white">Ladda ner filen som `index.html`:</strong> Klicka på den gröna knappen{' '}
+                <em>&quot;Ladda ner index.html&quot;</em> nedan.
               </li>
               <li>
-                <strong className="text-white">Html5Qrcode och dolda modaler:</strong> När popupen var{' '}
-                <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300">hidden</code> kunde inte
-                biblioteket mäta storleken på behållaren (#reader = 0x0 pixlar), vilket gav svarta bildrutor.
+                <strong className="text-white">Ladda upp till ditt GitHub-repository:</strong> Lägg filen i roten av
+                ditt repository på GitHub (så att den heter <code className="bg-slate-900 text-sky-300 px-1 py-0.5 rounded">index.html</code>).
               </li>
               <li>
-                <strong className="text-white">Safari / iOS begränsningar:</strong> Mobilkamera kräver{' '}
-                <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300">playsinline</code> och{' '}
-                <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300">muted</code> för att inte
-                låsa sig eller försöka ta över i helskärmsläge.
+                <strong className="text-white">Aktivera GitHub Pages (Viktigaste steget för kameran!):</strong>
+                <p className="pl-4 pt-1 text-slate-400">
+                  Gå till ditt repo på GitHub ➔ Klicka på <strong>Settings</strong> ➔ Klicka på <strong>Pages</strong> i
+                  vänstermenyn ➔ Välj <strong>Branch: main</strong> och mapp <strong>/ (root)</strong> ➔ Klicka på{' '}
+                  <strong>Save</strong>.
+                </p>
               </li>
               <li>
-                <strong className="text-white">Ljudpolicy:</strong> Webbläsare pausar AudioContext tills
-                användaren klickat på sidan.
+                <strong className="text-white">Kameratillstånd & HTTPS:</strong> Webbläsare på mobiler (Safari och Chrome)
+                kräver strikt <strong>HTTPS</strong> för att ge kameratillstånd. GitHub Pages ger dig automatiskt en säker{' '}
+                <code className="bg-slate-900 text-emerald-300 px-1 py-0.5 rounded">https://dittnamn.github.io/repo/</code> adress där servitriser kan öppna sidan och använda kameran direkt!
               </li>
-              <li>
-                <strong className="text-white">Dublettskanningar i samma sekund:</strong> Saknade cooldown,
-                vilket gjorde att samma QR-kod triggade 20 dubletter direkt när kameran siktades.
-              </li>
-            </ul>
-            <div className="pt-1 text-emerald-400 flex items-center gap-1.5 font-medium">
+            </ol>
+            <div className="pt-2 text-emerald-400 flex items-center gap-1.5 font-medium border-t border-slate-800">
               <CheckCircle className="w-4 h-4" />
-              Allt detta är nu helt åtgärdat i denna färdiga HTML-lösning nedan!
+              Denna fil innehåller all CSS, JavaScript och kamerastöd i ett enda block utan externa beroenden!
             </div>
           </div>
 
-          {/* Code preview */}
+          {/* Code preview snippet */}
           <div>
             <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-              <span>Förhandsvisning av källkoden:</span>
-              <span>ca 420 rader (All CSS + JS inkluderat)</span>
+              <span>Förhandsvisning av koden:</span>
+              <span>index.html (ca 390 rader)</span>
             </div>
-            <pre className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-300 max-h-56 overflow-y-auto leading-relaxed select-all">
-              {htmlCode.slice(0, 1600)}
-              {'\n... [hela koden laddas ner vid klick på knappen] ...'}
+            <pre className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-300 max-h-48 overflow-y-auto leading-relaxed select-all">
+              {htmlCode.slice(0, 1200)}
+              {'\n... [klicka nedan för att ladda ner hela filen] ...'}
             </pre>
           </div>
         </div>
@@ -122,15 +116,15 @@ export const StandaloneExportModal: React.FC<StandaloneExportModalProps> = ({
             className="flex items-center gap-1.5 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-colors"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Kopierat till urklipp!' : 'Kopiera hela HTML-koden'}
+            {copied ? 'Kopierat!' : 'Kopiera kod'}
           </button>
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/20 transition-all"
+            className="flex items-center gap-1.5 py-2.5 px-4 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-sky-600/20 transition-all"
           >
             <Download className="w-4 h-4" />
-            Ladda ner som .html fil
+            Ladda ner index.html för GitHub
           </button>
         </div>
       </div>

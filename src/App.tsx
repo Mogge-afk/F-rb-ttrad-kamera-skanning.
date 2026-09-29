@@ -304,13 +304,39 @@ export default function App() {
       {/* Main Content Container */}
       <main className="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-5 flex flex-col gap-4">
         {/* Primary Action Button - Start Camera */}
-        <button
-          onClick={() => setIsCameraOpen(true)}
-          className="w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-base sm:text-lg rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2.5 transition-all transform active:scale-[0.98] cursor-pointer"
-        >
-          <Camera className="w-6 h-6 stroke-[2.5]" />
-          <span>Starta Kamera</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2.5">
+          <button
+            onClick={() => setIsCameraOpen(true)}
+            className="flex-1 py-4 px-6 bg-gradient-to-r from-sky-500 to-emerald-500 hover:from-sky-400 hover:to-emerald-400 text-slate-950 font-black text-base sm:text-lg rounded-2xl shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2.5 transition-all transform active:scale-[0.98] cursor-pointer"
+          >
+            <Camera className="w-6 h-6 stroke-[2.5]" />
+            <span>Starta Bakkamera (Lampa & Zoom)</span>
+          </button>
+
+          <a
+            href="/scanner.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-3.5 px-5 bg-slate-900 hover:bg-slate-800 border border-sky-500/30 text-sky-400 font-bold text-sm rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+            title="Öppna den rena HTML-sidan i ny flik"
+          >
+            <FileCode className="w-5 h-5 text-sky-400" />
+            <span>Öppna /scanner.html</span>
+          </a>
+        </div>
+
+        {/* Feature badges */}
+        <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-slate-400">
+          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-medium">
+            📷 Endast bakkameror (front exkluderad)
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-medium">
+            🔦 Fungerande ficklampa (torch)
+          </span>
+          <span className="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-medium">
+            🔍 Zoom 1x–5x (hårdvara + digital)
+          </span>
+        </div>
 
         {/* Manual Input Field */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-sm">

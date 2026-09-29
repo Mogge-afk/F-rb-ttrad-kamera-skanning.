@@ -1,18 +1,18 @@
-// Generates the rock-solid, single-file HTML scanner
-// Specifically requested: QR + Barcodes, Working Lamp/Torch, Working Zoom (hardware + digital fallback),
-// and Camera switching with ONLY back cameras (front cameras filtered out completely!).
-
-export function generateStandaloneHtml(): string {
-  return `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QR & Streckkodsläsare - Bakkamera med Lampa & Zoom</title>
+  <title>QR & Streckkodsläsare - Endast Bakkamera med Lampa & Zoom</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: #090d16;
       color: #f1f5f9;
       min-height: 100vh;
@@ -21,10 +21,28 @@ export function generateStandaloneHtml(): string {
       align-items: center;
       padding: 12px 10px 40px;
     }
-    .wrapper { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
-    header { text-align: center; padding: 4px 0 6px; }
-    h1 { font-size: 22px; font-weight: 800; color: #38bdf8; letter-spacing: -0.5px; }
-    .subhead { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+    .wrapper {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    header {
+      text-align: center;
+      padding: 4px 0 8px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: -0.5px;
+    }
+    .subhead {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
 
     /* KAMERA VIEWPORT */
     .viewport-card {
@@ -41,9 +59,22 @@ export function generateStandaloneHtml(): string {
       align-items: center;
       justify-content: center;
     }
-    #video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.15s ease-out; }
-    #canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; object-fit: cover; }
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.15s ease-out;
+    }
+    #canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      object-fit: cover;
+    }
 
+    /* Siktram och laser */
     .scanner-aim {
       position: absolute;
       width: 72%;
@@ -68,6 +99,7 @@ export function generateStandaloneHtml(): string {
       100% { top: 5%; opacity: 0.2; }
     }
 
+    /* Overlay knappar på kameran */
     .overlay-controls {
       position: absolute;
       bottom: 12px;
@@ -79,6 +111,7 @@ export function generateStandaloneHtml(): string {
       gap: 8px;
       z-index: 5;
     }
+
     .btn-cam-control {
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(8px);
@@ -94,7 +127,9 @@ export function generateStandaloneHtml(): string {
       gap: 6px;
       transition: all 0.2s;
     }
-    .btn-cam-control:active { transform: scale(0.96); }
+    .btn-cam-control:active {
+      transform: scale(0.96);
+    }
     .torch-active {
       background: #f59e0b !important;
       color: #000 !important;
@@ -120,8 +155,16 @@ export function generateStandaloneHtml(): string {
       font-weight: 600;
       color: #94a3b8;
     }
-    .zoom-val { color: #38bdf8; font-weight: 700; font-size: 14px; }
-    .zoom-row { display: flex; align-items: center; gap: 10px; }
+    .zoom-val {
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .zoom-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .zoom-slider {
       flex: 1;
       height: 6px;
@@ -130,7 +173,10 @@ export function generateStandaloneHtml(): string {
       border-radius: 4px;
       outline: none;
     }
-    .zoom-presets { display: flex; gap: 6px; }
+    .zoom-presets {
+      display: flex;
+      gap: 6px;
+    }
     .btn-preset {
       flex: 1;
       padding: 7px 0;
@@ -143,9 +189,13 @@ export function generateStandaloneHtml(): string {
       cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-preset.active { background: #0284c7; border-color: #38bdf8; color: #fff; }
+    .btn-preset.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
 
-    /* BAKKAMERA PANEL */
+    /* KAMERAVAL PANEL */
     .cam-panel {
       background: #131d2e;
       border: 1px solid #1e293b;
@@ -172,8 +222,11 @@ export function generateStandaloneHtml(): string {
       font-size: 14px;
       outline: none;
     }
+    .cam-select:focus {
+      border-color: #38bdf8;
+    }
 
-    /* STATUS & RÄKNARE */
+    /* STATUS VISNING */
     .status-card {
       background: #131d2e;
       border: 1px solid #1e293b;
@@ -195,14 +248,43 @@ export function generateStandaloneHtml(): string {
     .badge-idle { background: #334155; color: #94a3b8; }
     .badge-ok { background: #10b981; color: #022c22; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
     .badge-dup { background: #ef4444; color: #450a0a; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-    .status-val { font-size: 18px; font-weight: 700; word-break: break-all; min-height: 26px; }
+    .status-val {
+      font-size: 18px;
+      font-weight: 700;
+      word-break: break-all;
+      min-height: 26px;
+    }
 
-    .counters { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .cnt-box { background: #131d2e; border: 1px solid #1e293b; border-radius: 12px; padding: 10px; text-align: center; }
-    .cnt-num { font-size: 20px; font-weight: 800; color: #fff; }
-    .cnt-txt { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+    /* RÄKNARE */
+    .counters {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .cnt-box {
+      background: #131d2e;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+    }
+    .cnt-num {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .cnt-txt {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+    }
 
-    .manual-row { display: flex; gap: 8px; }
+    /* MANUELL OCH EXTRA */
+    .manual-row {
+      display: flex;
+      gap: 8px;
+    }
     .manual-input {
       flex: 1;
       padding: 12px 14px;
@@ -212,6 +294,9 @@ export function generateStandaloneHtml(): string {
       color: #fff;
       font-size: 14px;
       outline: none;
+    }
+    .manual-input:focus {
+      border-color: #38bdf8;
     }
     .btn-action {
       padding: 12px 16px;
@@ -223,11 +308,40 @@ export function generateStandaloneHtml(): string {
       font-size: 14px;
       cursor: pointer;
     }
+    .btn-action:active {
+      transform: scale(0.97);
+    }
 
-    .history-card { background: #131d2e; border: 1px solid #1e293b; border-radius: 16px; padding: 14px; }
-    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: #94a3b8; font-weight: 600; }
-    .btn-clear { background: none; border: none; color: #ef4444; font-size: 12px; cursor: pointer; }
-    .history-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    /* HISTORIKLISTA */
+    .history-card {
+      background: #131d2e;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .btn-clear {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .history-list {
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
     .history-item {
       display: flex;
       justify-content: space-between;
@@ -238,11 +352,23 @@ export function generateStandaloneHtml(): string {
       font-size: 13px;
       gap: 8px;
     }
-    .item-val { font-family: monospace; font-weight: 600; word-break: break-all; }
+    .item-val {
+      font-family: monospace;
+      font-weight: 600;
+      word-break: break-all;
+    }
     .item-dup { color: #f87171; font-size: 11px; font-weight: 700; }
     .item-ok { color: #34d399; font-size: 11px; font-weight: 700; }
-    #camMsg { font-size: 12px; color: #f59e0b; text-align: center; min-height: 16px; }
+
+    #camMsg {
+      font-size: 12px;
+      color: #f59e0b;
+      text-align: center;
+      min-height: 16px;
+    }
   </style>
+
+  <!-- jsQR som pålitlig fallback i fall BarcodeDetector inte finns -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
@@ -253,6 +379,7 @@ export function generateStandaloneHtml(): string {
     <div class="subhead">Endast bakkamera • Med lampa & zoom</div>
   </header>
 
+  <!-- KAMERA VIEWPORT -->
   <div class="viewport-card">
     <video id="video" playsinline muted autoplay></video>
     <canvas id="canvas"></canvas>
@@ -261,6 +388,7 @@ export function generateStandaloneHtml(): string {
       <div class="laser-line"></div>
     </div>
 
+    <!-- Kontroller ovanpå videon -->
     <div class="overlay-controls">
       <button id="torchBtn" class="btn-cam-control" onclick="toggleTorch()">
         🔦 <span>Lampa PÅ</span>
@@ -274,7 +402,7 @@ export function generateStandaloneHtml(): string {
 
   <div id="camMsg">Startar kameran...</div>
 
-  <!-- ZOOM -->
+  <!-- ZOOM-KONTROLL -->
   <div class="zoom-panel">
     <div class="zoom-header">
       <span>🔍 Zoomnivå</span>
@@ -305,7 +433,7 @@ export function generateStandaloneHtml(): string {
     </select>
   </div>
 
-  <!-- STATUS -->
+  <!-- STATUSKORT -->
   <div class="status-card" id="statusCard">
     <div id="statusBadge" class="status-badge badge-idle">Väntar på kod...</div>
     <div id="statusVal" class="status-val">-</div>
@@ -327,7 +455,7 @@ export function generateStandaloneHtml(): string {
     </div>
   </div>
 
-  <!-- MANUELL -->
+  <!-- MANUELL INMATNING & TEST -->
   <div class="manual-row">
     <input id="manualInput" class="manual-input" type="text" placeholder="Skriv in eller skanna med pistol...">
     <button class="btn-action" onclick="submitManual()">OK</button>
@@ -346,6 +474,7 @@ export function generateStandaloneHtml(): string {
 </div>
 
 <script>
+// TILLSTÅND
 let currentStream = null;
 let currentTrack = null;
 let backCameras = [];
@@ -364,6 +493,7 @@ let lastCode = null;
 let lastCodeTime = 0;
 let animFrameId = null;
 
+// Audio Context för omedelbart ljud utan fördröjning
 let audioCtx = null;
 function getAudio() {
   if (!audioCtx) {
@@ -402,12 +532,14 @@ function onCodeDup(code) {
   if (navigator.vibrate) navigator.vibrate([90, 60, 120]);
 }
 
+// ------------------- SKANNINGSLOGIK -------------------
 function processScan(code) {
   if (!code) return;
   code = code.trim();
   if (!code) return;
 
   const now = Date.now();
+  // Cooldown så den inte triggar 30 gånger per sekund på samma kod
   if (code === lastCode && (now - lastCodeTime < 1800)) {
     return;
   }
@@ -420,6 +552,7 @@ function processScan(code) {
   const card = document.getElementById("statusCard");
   const badge = document.getElementById("statusBadge");
   const val = document.getElementById("statusVal");
+
   val.innerText = code;
 
   if (exists) {
@@ -448,13 +581,13 @@ function updateUI(code, isDup) {
   const time = new Date().toLocaleTimeString();
   const div = document.createElement("div");
   div.className = "history-item";
-  div.innerHTML = \`
+  div.innerHTML = `
     <div>
-      <span style="color:#64748b; font-size:11px; margin-right:4px;">\${time}</span>
-      <span class="item-val">\${escapeHtml(code)}</span>
+      <span style="color:#64748b; font-size:11px; margin-right:4px;">${time}</span>
+      <span class="item-val">${escapeHtml(code)}</span>
     </div>
-    <span class="\${isDup ? 'item-dup' : 'item-ok'}">\${isDup ? 'DUPLIKAT' : 'GODKÄND'}</span>
-  \`;
+    <span class="${isDup ? 'item-dup' : 'item-ok'}">${isDup ? 'DUPLIKAT' : 'GODKÄND'}</span>
+  `;
   list.prepend(div);
   if (list.children.length > 30) list.removeChild(list.lastChild);
 }
@@ -490,6 +623,9 @@ function clearHistory() {
   document.getElementById("historyList").innerHTML = '<div style="text-align: center; color: #475569; font-size: 12px; padding: 12px;">Inga koder skannade än</div>';
 }
 
+// ------------------- KAMERAHANTERING: ENDAST BAKKAMERA -------------------
+
+// Filtrera bort ALLA fram-/selfiekameror
 function isFrontCamera(label) {
   if (!label) return false;
   return /front|fram|selfie|user|face/i.test(label);
@@ -499,7 +635,11 @@ async function discoverBackCameras() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const videoDevices = devices.filter(d => d.kind === 'videoinput');
+
+    // Sortera ut ENBART bakkameror (filtrera strikt bort front)
     const filtered = videoDevices.filter(d => !isFrontCamera(d.label));
+
+    // Om etiketter ännu inte var synliga (innan behörighet givits), spara videoDevices
     backCameras = filtered.length > 0 ? filtered : videoDevices;
 
     const select = document.getElementById("camSelect");
@@ -510,16 +650,17 @@ async function discoverBackCameras() {
       opt.value = cam.deviceId;
       let label = cam.label;
       if (!label) {
-        label = \`Bakkamera \${index + 1}\`;
+        label = `Bakkamera ${index + 1}`;
       } else {
-        if (/ultra|wide|0\\./i.test(label)) label += " (Vidvinkel)";
+        // Tydliggör linstyp om den finns i namnet (t.ex. vidvinkel, tele)
+        if (/ultra|wide|0\./i.test(label)) label += " (Vidvinkel)";
         else if (/tele|zoom|[2-5]x/i.test(label)) label += " (Zoom/Tele)";
       }
       opt.text = label;
       select.appendChild(opt);
     });
 
-    document.getElementById("camCountLabel").innerText = \`\${backCameras.length} bakkamera(or)\`;
+    document.getElementById("camCountLabel").innerText = `${backCameras.length} bakkamera(or)`;
     if (selectedDeviceId) {
       select.value = selectedDeviceId;
     }
@@ -538,7 +679,9 @@ async function startCamera(deviceId = null) {
   const msg = document.getElementById("camMsg");
   msg.innerText = "Startar bakkamera...";
 
+  // Bygg constraints som TILL 100% begär bakkamera ('environment')
   const constraintsList = [];
+
   if (deviceId) {
     constraintsList.push({
       video: {
@@ -549,6 +692,7 @@ async function startCamera(deviceId = null) {
     });
     constraintsList.push({ video: { deviceId: { exact: deviceId } } });
   } else {
+    // Mobil bakkamera med ideal 1080p för skarp QR/streckkodsläsning
     constraintsList.push({
       video: {
         facingMode: { exact: "environment" },
@@ -564,7 +708,7 @@ async function startCamera(deviceId = null) {
       }
     });
     constraintsList.push({ video: { facingMode: "environment" } });
-    constraintsList.push({ video: true });
+    constraintsList.push({ video: true }); // Fallback på PC
   }
 
   let stream = null;
@@ -572,7 +716,9 @@ async function startCamera(deviceId = null) {
     try {
       stream = await navigator.mediaDevices.getUserMedia(c);
       if (stream) break;
-    } catch(err) {}
+    } catch(err) {
+      // Prova nästa constraint
+    }
   }
 
   if (!stream) {
@@ -588,9 +734,12 @@ async function startCamera(deviceId = null) {
   video.srcObject = stream;
   await video.play();
 
+  // Upptäck kameror nu när behörighet garanterat finns
   await discoverBackCameras();
+
   initTorchAndZoom();
-  msg.innerText = \`Aktiv: \${currentTrack.label || "Bakkamera"}\`;
+  msg.innerText = `Aktiv: ${currentTrack.label || "Bakkamera"}`;
+
   startScanningLoop();
 }
 
@@ -615,15 +764,25 @@ function cycleBackCamera() {
   }
 }
 
+// ------------------- LAMPA (TORCH) -------------------
 function initTorchAndZoom() {
   if (!currentTrack) return;
   const caps = currentTrack.getCapabilities ? currentTrack.getCapabilities() : {};
 
+  // 1. LAMPA
   const torchBtn = document.getElementById("torchBtn");
   isTorchOn = false;
   torchBtn.className = "btn-cam-control";
   torchBtn.querySelector("span").innerText = "Lampa PÅ";
 
+  if ('torch' in caps) {
+    torchBtn.style.display = "inline-flex";
+  } else {
+    // Vissa mobiler gömmer torch tills streamen är aktiv en sekund
+    torchBtn.style.display = "inline-flex";
+  }
+
+  // 2. ZOOM
   const slider = document.getElementById("zoomSlider");
   if ('zoom' in caps) {
     hardwareZoomSupported = true;
@@ -633,8 +792,9 @@ function initTorchAndZoom() {
     slider.min = zoomMin;
     slider.max = zoomMax;
     slider.step = zoomStep;
-    document.getElementById("maxZoomLabel").innerText = \`\${Math.round(zoomMax)}x\`;
+    document.getElementById("maxZoomLabel").innerText = `${Math.round(zoomMax)}x`;
   } else {
+    // Mjukvaru-/digital zoom fallback (förstorar videon och klipper i canvas!)
     hardwareZoomSupported = false;
     zoomMin = 1;
     zoomMax = 5;
@@ -652,6 +812,7 @@ async function toggleTorch() {
   const nextState = !isTorchOn;
 
   try {
+    // Applicera torch constraint på videospåret
     await currentTrack.applyConstraints({
       advanced: [{ torch: nextState }]
     });
@@ -669,14 +830,16 @@ async function toggleTorch() {
   }
 }
 
+// ------------------- ZOOM (HÅRDVARA + DIGITAL FALLBACK) -------------------
 async function setZoom(val) {
   val = parseFloat(val);
   if (isNaN(val)) return;
   currentZoom = val;
 
   document.getElementById("zoomSlider").value = val;
-  document.getElementById("zoomVal").innerText = \`\${val.toFixed(1)}x\`;
+  document.getElementById("zoomVal").innerText = `${val.toFixed(1)}x`;
 
+  // Uppdatera aktiv stil på preset-knappar
   document.querySelectorAll(".btn-preset").forEach(btn => {
     const pVal = parseFloat(btn.innerText);
     if (Math.abs(pVal - val) < 0.1) {
@@ -686,21 +849,27 @@ async function setZoom(val) {
     }
   });
 
+  // 1. Försök med hårdvaruzoom på kameran
   if (hardwareZoomSupported && currentTrack) {
     try {
       await currentTrack.applyConstraints({
         advanced: [{ zoom: val }]
       });
+      // Återställ videotransform om hårdvaran sköter det
       document.getElementById("video").style.transform = "scale(1)";
       return;
-    } catch(e) {}
+    } catch(e) {
+      // Gå vidare till mjukvaruzoom om det misslyckas
+    }
   }
 
+  // 2. Mjukvaru-zoom fallback (CSS scale på video, och inzoomad canvas crop för scanning!)
   const video = document.getElementById("video");
-  video.style.transform = \`scale(\${val})\`;
+  video.style.transform = `scale(${val})`;
   video.style.transformOrigin = "center center";
 }
 
+// ------------------- SKANNINGSLOOP (BarcodeDetector + jsQR) -------------------
 function startScanningLoop() {
   if (animFrameId) cancelAnimationFrame(animFrameId);
 
@@ -708,6 +877,7 @@ function startScanningLoop() {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
+  // Native BarcodeDetector (klarar QR, EAN-13, Code 128, Datamatrix etc)
   let barcodeDetector = null;
   if ('BarcodeDetector' in window) {
     try {
@@ -730,6 +900,7 @@ function startScanningLoop() {
       canvas.height = video.videoHeight;
     }
 
+    // Om digital zoom används, zooma in mitten av bildrutan på canvas
     if (!hardwareZoomSupported && currentZoom > 1) {
       const sw = video.videoWidth / currentZoom;
       const sh = video.videoHeight / currentZoom;
@@ -740,10 +911,12 @@ function startScanningLoop() {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
+    // Analysera bild ~15-20 ggr per sekund
     if (timestamp - lastDetectTimestamp > 60) {
       lastDetectTimestamp = timestamp;
       let detectedText = null;
 
+      // 1. Prova BarcodeDetector
       if (barcodeDetector) {
         try {
           const results = await barcodeDetector.detect(canvas);
@@ -753,6 +926,7 @@ function startScanningLoop() {
         } catch(e) {}
       }
 
+      // 2. jsQR Fallback för QR-koder
       if (!detectedText && typeof jsQR === 'function') {
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imgData.data, imgData.width, imgData.height, {
@@ -774,12 +948,13 @@ function startScanningLoop() {
   animFrameId = requestAnimationFrame(tick);
 }
 
+// Starta direkt vid laddning
 window.addEventListener("DOMContentLoaded", () => {
+  // Tillåt användarinteraktion för ljud
   document.body.addEventListener("click", () => getAudio(), { once: true });
   startCamera();
 });
 </script>
 
 </body>
-</html>`;
-}
+</html>
