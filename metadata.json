@@ -1,0 +1,6 @@
+{
+  "name": "QR Scan Pro & Verify",
+  "description": "Snabb, pålitlig QR- och streckkodsläsare med duplikatkontroll, ljud- och vibrationsfeedback, kamerabytare och export.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
